@@ -1,0 +1,38 @@
+version: '2.3'
+
+services:
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    restart: always
+    networks:
+    - gitlab-network
+    volumes:
+    - /srv/gitlab-runner:/etc/gitlab-runner:Z
+    - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+    - CI_SERVER_URL=${CI_SERVER_URL}
+    - REGISTRATION_TOKEN=${REGISTRATION_TOKEN}
+
+  balancer:
+    build: ./balancer
+    networks:
+    - gitlab-network
+    ports:
+    - "${BALANCER_PORT_HTTP}:80"
+    - "${BALANCER_PORT_HTTPS}:443"
+    volumes:
+    - ${DATA_STORE_PATH}/certs:/etc/letsencrypt:Z
+    environment:
+    - BALANCER_PORT=${BALANCER_PORT}
+    - BALANCER_PORT_HTTP=${BALANCER_PORT_HTTP}
+    - BALANCER_PORT_HTTPS=${BALANCER_PORT_HTTPS}
+    - BALANCER_CERTBOT_EMAIL=${BALANCER_CERTBOT_EMAIL}
+    restart: always
+
+volumes:
+  gitlab-data:
+  balancer-data:
+
+networks:
+  gitlab-network:
