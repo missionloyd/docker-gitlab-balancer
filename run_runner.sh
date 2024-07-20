@@ -27,6 +27,7 @@ docker run -d \
   --name gitlab-runner \
   --network $NETWORK_NAME \
   --restart always \
+  -p 999:999 \
   -v /srv/gitlab-runner:/etc/gitlab-runner \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -e RUNNER_CI_SERVER_URL=$RUNNER_CI_SERVER_URL \
