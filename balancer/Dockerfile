@@ -1,7 +1,9 @@
 FROM nginx:latest
 
 # Install necessary packages
-RUN apt-get update && apt-get install -y certbot python3-certbot-nginx dnsutils
+RUN apt-get update && apt-get install -y certbot python3-certbot-nginx dnsutils tzdata
+
+ENV TZ="America/Denver"
 
 # Remove default nginx configuration files
 RUN rm /etc/nginx/nginx.conf
@@ -14,6 +16,9 @@ COPY nginx.conf /etc/nginx/
 COPY ssl-params.conf /etc/nginx/snippets/
 COPY proxy-params.conf /etc/nginx/snippets/
 
+# Copy modules
+COPY modules /etc/nginx/modules/
+
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 
@@ -21,6 +26,6 @@ COPY entrypoint.sh /entrypoint.sh
 EXPOSE 80 443
 
 # Make scripts executable
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh /etc/nginx/modules/*.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
