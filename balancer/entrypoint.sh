@@ -4,18 +4,18 @@
 mkdir -p "${BALANCER_SSL_BASE_DIR}"
 mkdir -p "${BALANCER_NGINX_CONF_DIR}"
 
-# Define domains and servers
-declare -A services=(
-    [dev-powertwin]=powertwin:9443
-    [prev-powertwin]=powertwin:9444
-    [main-powertwin]=powertwin:9445
-    [dev-powertwin-db]=powertwin-api:5443
-    [prev-powertwin-db]=powertwin-api:5444
-    [main-powertwin-db]=powertwin-api:5445
-    [dev-powertwin-solver]=powertwin-solver:7443
-    [prev-powertwin-solver]=powertwin-solver:7444
-    [main-powertwin-solver]=powertwin-solver:7445
-)
+# Declare an associative array
+declare -A services
+
+# Read key-value pairs from JSON and add to the associative array
+while IFS="=" read -r key value; do
+    services[$key]=$value
+done < <(jq -r "to_entries | map(\"\(.key)=\(.value)\") | .[]" ${BALANCER_SERVICES_FILE})
+
+# To demonstrate, print the array elements
+for key in "${!services[@]}"; do
+    echo "$key -> ${services[$key]}"
+done
 
 # Load or source additional script modules
 update_config() {

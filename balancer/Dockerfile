@@ -1,7 +1,7 @@
 FROM nginx:latest
 
 # Install necessary packages
-RUN apt-get update && apt-get install -y certbot python3-certbot-nginx dnsutils tzdata
+RUN apt-get update && apt-get install -y certbot python3-certbot-nginx dnsutils tzdata jq
 
 ENV TZ="America/Denver"
 
