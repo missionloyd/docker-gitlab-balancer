@@ -78,5 +78,5 @@ update_services_and_reload_nginx() {
 # Periodically check service DNS and update NGINX config as needed
 while true; do
     update_services_and_reload_nginx
-    sleep 10
+    sleep ${BALANCER_SLEEP_BUFFER}
 done
