@@ -4,7 +4,7 @@
 create_nginx_server_block() {
     local domain=$1
     local full_domain="${domain}.${BALANCER_DOMAIN}"
-    local domain_dir="${BALANCER_NGINX_CONF_DIR}/${full_domain}"
+    local domain_dir="${BALANCER_NGINX_SSL_DIR}/${full_domain}"
     echo "
 # ${full_domain}
 server {

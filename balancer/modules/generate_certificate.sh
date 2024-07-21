@@ -3,14 +3,14 @@
 # Function to check if a certificate exists for a domain
 certificate_exists() {
     local domain=$1
-    local cert_path="${BALANCER_NGINX_CONF_DIR}/${domain}/${domain}.crt"
+    local cert_path="${BALANCER_NGINX_SSL_DIR}/${domain}/${domain}.crt"
     [ -f "${cert_path}" ]
 }
 
 # Function to generate a certificate for a domain
 generate_certificate() {
     local domain=$1
-    local domain_dir="${BALANCER_NGINX_CONF_DIR}/${domain}"
+    local domain_dir="${BALANCER_NGINX_SSL_DIR}/${domain}"
     local cert_path="${domain_dir}/${domain}.crt"
 
     # Check if the certificate already exists

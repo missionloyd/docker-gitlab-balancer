@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Create necessary directories
-mkdir -p "${BALANCER_NGINX_SSL_BASE_DIR}"
-mkdir -p "${BALANCER_NGINX_CONF_DIR}"
-
 # Declare an associative array
 declare -A services
 
