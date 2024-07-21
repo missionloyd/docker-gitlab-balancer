@@ -28,9 +28,9 @@ generate_certificate() {
     openssl req -new \
         -key "${domain_dir}/${domain}.key" \
         -out "${domain_dir}/${domain}.csr" \
-        -subj "/C=US/ST=WY/L=Laramie/O=Power Theory Inc./OU=Operations/CN=${domain}/emailAddress=${BALANCER_EMAIL_ADDRESS}" \
+        -subj "/C=${BALANCER_CERT_COUNTRY}/ST=${BALANCER_CERT_STATE}/L=${BALANCER_CERT_LOCALITY}/O=${BALANCER_CERT_ORGANIZATION}/OU=${BALANCER_CERT_ORGANIZATIONAL_UNIT}/CN=${domain}/emailAddress=${BALANCER_CERT_EMAIL_ADDRESS}" \
         -addext "subjectAltName = DNS:${domain}" \
-        -passout pass:${BALANCER_PASSWORD}
+        -passout pass:${BALANCER_CERT_PASSWORD}
 
     # Step 3: Sign the certificate
     openssl x509 -req -days ${BALANCER_CERT_VALIDITY_DAYS} \

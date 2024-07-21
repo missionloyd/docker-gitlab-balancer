@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Create necessary directories
-mkdir -p "${BALANCER_SSL_BASE_DIR}"
+mkdir -p "${BALANCER_NGINX_SSL_BASE_DIR}"
 mkdir -p "${BALANCER_NGINX_CONF_DIR}"
 
 # Declare an associative array
@@ -10,7 +10,7 @@ declare -A services
 # Read key-value pairs from JSON and add to the associative array
 while IFS="=" read -r key value; do
     services[$key]=$value
-done < <(jq -r "to_entries | map(\"\(.key)=\(.value)\") | .[]" ${BALANCER_SERVICES_FILE})
+done < <(jq -r "to_entries | map(\"\(.key)=\(.value)\") | .[]" ${BALANCER_NGINX_SERVICES_FILE})
 
 # To demonstrate, print the array elements
 for key in "${!services[@]}"; do
