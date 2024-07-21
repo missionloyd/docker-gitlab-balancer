@@ -22,6 +22,9 @@ fi
 # Create empty pre-generated file and build image
 touch $(pwd)/balancer/project.conf
 
+# Create local cert directory
+mkdir -p "${BALANCER_SSL_BASE_DIR}"
+
 # Remove any existing container named gitlab-balancer
 docker rm -f gitlab-balancer
 
