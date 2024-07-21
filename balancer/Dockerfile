@@ -3,7 +3,8 @@ FROM nginx:latest
 # Install necessary packages
 RUN apt-get update && apt-get install -y certbot python3-certbot-nginx dnsutils tzdata jq
 
-ENV TZ=${BALANCER_SLEEP_TIMEZONE}
+ARG BALANCER_TIMEZONE
+ENV TZ=${BALANCER_TIMEZONE}
 
 # Remove default nginx configuration files
 RUN rm /etc/nginx/nginx.conf

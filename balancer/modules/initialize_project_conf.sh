@@ -5,7 +5,7 @@ rm -f "${BALANCER_NGINX_PROJ_CONF_FILE}"
 
 # Initialize project.conf with dynamic configuration
 cat > "${BALANCER_NGINX_PROJ_CONF_FILE}" <<EOF
-# Generated file @ $(date '+%Y-%m-%d %H:%M:%S')
+# Generated file @ $(date '+%Y-%m-%d %I:%M:%S %p %Z')
 
 # Define upstream servers based on service type and port
 EOF
