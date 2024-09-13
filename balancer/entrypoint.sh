@@ -5,12 +5,23 @@ declare -A services
 
 # Read key-value pairs from JSON and add to the associative array
 while IFS="=" read -r key value; do
-    services[$key]=$value
-done < <(jq -r "to_entries | map(\"\(.key)=\(.value)\") | .[]" ${BALANCER_NGINX_SERVICES_FILE})
+    # Validate and sanitize the key before using it as an array subscript
+    if [ -z "$key" ]; then
+        key="_empty_key"  # Assign a placeholder key for empty keys
+    fi
+    
+    # Add the key-value pair to the services array
+    services["$key"]="$value"
+done < <(jq -r "to_entries | map(\"\(.key)=\(.value)\") | .[]" "${BALANCER_NGINX_SERVICES_FILE}")
 
 # To demonstrate, print the array elements
 for key in "${!services[@]}"; do
-    echo "$key -> ${services[$key]}"
+    # Display placeholder for empty keys during debugging
+    if [ "$key" == "_empty_key" ]; then
+        echo "(empty) -> ${services[$key]}"
+    else
+        echo "$key -> ${services[$key]}"
+    fi
 done
 
 # Load or source additional script modules
@@ -27,9 +38,10 @@ update_config() {
 initialize_dns_check_with_fallback() {
     for service in "${!services[@]}"; do
         local hostname=$(echo "${services[$service]}" | cut -d: -f1)
-        if ! host $hostname > /dev/null 2>&1; then
+        # Only check DNS if hostname is non-empty
+        if [ -n "$hostname" ] && ! host "$hostname" > /dev/null 2>&1; then
             echo "DNS resolution failed for $hostname, using fallback."
-            services[$service]="gitlab-runner:404"  # Set fallback host and port
+            services["$service"]="gitlab-runner:404"  # Set fallback host and port
         fi
     done
 }
@@ -42,23 +54,24 @@ nginx -g "daemon off;" &
 # Initialize original settings in a separate array to ensure they are preserved
 declare -A original_services
 for key in "${!services[@]}"; do
-    original_services[$key]=${services[$key]}
+    original_services["$key"]="${services[$key]}"
 done
 
 update_services_and_reload_nginx() {
     local changed=false
     for service in "${!services[@]}"; do
         local original_setting="${original_services[$service]}"
-        local hostname=$(echo $original_setting | cut -d: -f1)
+        local hostname=$(echo "$original_setting" | cut -d: -f1)
 
-        if ! host $hostname > /dev/null 2>&1; then
+        # Only check DNS if hostname is non-empty
+        if [ -n "$hostname" ] && ! host "$hostname" > /dev/null 2>&1; then
             if [ "${services[$service]}" != "gitlab-runner:404" ]; then
-                services[$service]="gitlab-runner:404"
+                services["$service"]="gitlab-runner:404"
                 changed=true
             fi
         else
             if [ "${services[$service]}" != "$original_setting" ]; then
-                services[$service]="$original_setting"
+                services["$service"]="$original_setting"
                 changed=true
             fi
         fi
@@ -74,5 +87,5 @@ update_services_and_reload_nginx() {
 # Periodically check service DNS and update NGINX config as needed
 while true; do
     update_services_and_reload_nginx
-    sleep ${BALANCER_SLEEP_BUFFER}
+    sleep "${BALANCER_SLEEP_BUFFER}"
 done

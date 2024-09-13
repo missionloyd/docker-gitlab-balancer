@@ -3,7 +3,17 @@
 # Function to create nginx server block
 create_nginx_server_block() {
     local domain=$1
-    local full_domain="${domain}.${BALANCER_DOMAIN}"
+    local full_domain
+
+    # Check if the domain is the placeholder for empty keys and construct full_domain accordingly
+    if [[ "$domain" == "_empty_key" ]]; then
+        # Use only the BALANCER_DOMAIN without subdomain
+        full_domain="${BALANCER_DOMAIN}"
+    else
+        # Construct full_domain with subdomain
+        full_domain="${domain}.${BALANCER_DOMAIN}"
+    fi
+
     local domain_dir="${BALANCER_NGINX_SSL_DIR}/${full_domain}"
     echo "
 # ${full_domain}

@@ -10,6 +10,7 @@ cat > "${BALANCER_NGINX_PROJ_CONF_FILE}" <<EOF
 # Define upstream servers based on service type and port
 EOF
 
+# Define upstream servers for each service
 for service in "${!services[@]}"; do
     echo "upstream $service { server ${services[$service]}; }" >> "${BALANCER_NGINX_PROJ_CONF_FILE}"
 done
@@ -21,8 +22,15 @@ map \$http_host \$backend {
     default "default-backend";
 EOF
 
+# Map hostnames to backends based on service names
 for service in "${!services[@]}"; do
-    echo "    ${service}.${BALANCER_DOMAIN}:${BALANCER_PORT_HTTP} $service;" >> "${BALANCER_NGINX_PROJ_CONF_FILE}"
+    # Check if the service is the placeholder for empty keys and construct the domain string accordingly
+    if [[ "$service" == "_empty_key" ]]; then
+        domain_name="${BALANCER_DOMAIN}"
+    else
+        domain_name="${service}.${BALANCER_DOMAIN}"
+    fi
+    echo "    ${domain_name}:${BALANCER_PORT_HTTP} $service;" >> "${BALANCER_NGINX_PROJ_CONF_FILE}"
 done
 
 cat >> "${BALANCER_NGINX_PROJ_CONF_FILE}" <<EOF
@@ -35,7 +43,16 @@ server {
 EOF
 
 # Populate server_name with dynamically created domain names
-server_names=$(printf ",%s.${BALANCER_DOMAIN}" "${!services[@]}")
+server_names=""
+for service in "${!services[@]}"; do
+    # Check if the service is the placeholder for empty keys and construct the domain string accordingly
+    if [[ "$service" == "_empty_key" ]]; then
+        domain_name="${BALANCER_DOMAIN}"
+    else
+        domain_name="${service}.${BALANCER_DOMAIN}"
+    fi
+    server_names+=",${domain_name}"
+done
 server_names=${server_names:1} # Remove the leading comma
 
 cat >> "${BALANCER_NGINX_PROJ_CONF_FILE}" <<EOF

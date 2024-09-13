@@ -1,5 +1,6 @@
 {
   "dev-project": "dev-project:9443",
   "prev-project": "prev-project:9444",
-  "main-project": "main-project:9445"
+  "main-project": "main-project:9445",
+  "": "main-project:9445"
 }
