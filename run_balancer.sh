@@ -21,6 +21,7 @@ fi
 
 # Create empty pre-generated file and build image
 touch $(pwd)/balancer/project.conf
+touch $(pwd)/balancer/stream.conf
 
 # Create local cert directory
 mkdir -p "${BALANCER_SSL_BASE_DIR}"
