@@ -39,7 +39,7 @@ initialize_dns_check_with_fallback() {
     for service in "${!services[@]}"; do
         local hostname=$(echo "${services[$service]}" | cut -d: -f1)
         # Only check DNS if hostname is non-empty
-        if [ -n "$hostname" ] && ! host "$hostname" > /dev/null 2>&1; then
+        if [ -n "$hostname" ] && ! getent hosts "$hostname" > /dev/null 2>&1; then
             echo "DNS resolution failed for $hostname, using fallback."
             services["$service"]="gitlab-runner:404"  # Set fallback host and port
         fi
@@ -64,7 +64,7 @@ update_services_and_reload_nginx() {
         local hostname=$(echo "$original_setting" | cut -d: -f1)
 
         # Only check DNS if hostname is non-empty
-        if [ -n "$hostname" ] && ! host "$hostname" > /dev/null 2>&1; then
+        if [ -n "$hostname" ] && ! getent hosts "$hostname" > /dev/null 2>&1; then
             if [ "${services[$service]}" != "gitlab-runner:404" ]; then
                 services["$service"]="gitlab-runner:404"
                 changed=true

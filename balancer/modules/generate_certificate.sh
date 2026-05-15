@@ -32,10 +32,11 @@ generate_certificate() {
         -addext "subjectAltName = DNS:${domain}" \
         -passout pass:${BALANCER_CERT_PASSWORD}
 
-    # Step 3: Sign the certificate
+    # Step 3: Sign the certificate with SANs
     openssl x509 -req -days ${BALANCER_CERT_VALIDITY_DAYS} \
         -in "${domain_dir}/${domain}.csr" \
         -signkey "${domain_dir}/${domain}.key" \
+        -extfile <(printf "subjectAltName=DNS:%s" "${domain}") \
         -out "${cert_path}"
 
     echo "Certificate generated for ${domain}"

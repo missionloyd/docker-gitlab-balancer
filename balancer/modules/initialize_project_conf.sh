@@ -30,7 +30,13 @@ for service in "${!services[@]}"; do
     else
         domain_name="${service}.${BALANCER_DOMAIN}"
     fi
-    echo "    ${domain_name}:${BALANCER_PORT_HTTP} $service;" >> "${BALANCER_NGINX_PROJ_CONF_FILE}"
+    
+    if [[ "$BALANCER_PORT_HTTP" == "80" ]]; then
+        echo "    ${domain_name} $service;" >> "${BALANCER_NGINX_PROJ_CONF_FILE}"
+    else
+        echo "    ${domain_name}:${BALANCER_PORT_HTTP} $service;" >> "${BALANCER_NGINX_PROJ_CONF_FILE}"
+    fi
+
 done
 
 cat >> "${BALANCER_NGINX_PROJ_CONF_FILE}" <<EOF
@@ -55,11 +61,17 @@ for service in "${!services[@]}"; do
 done
 server_names=${server_names:1} # Remove the leading comma
 
+# Adjust redirect logic for port 443
+redirect_port=""
+if [[ "$BALANCER_PORT_HTTPS" != "443" ]]; then
+    redirect_port=":${BALANCER_PORT_HTTPS}"
+fi
+
 cat >> "${BALANCER_NGINX_PROJ_CONF_FILE}" <<EOF
     server_name $server_names;
 
     location / {
-        return 301 https://\$host:${BALANCER_PORT}\$request_uri;
+        return 301 https://\$host$redirect_port\$request_uri;
     }
     
     error_log /var/log/nginx/http-error.log warn;
